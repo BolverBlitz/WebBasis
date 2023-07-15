@@ -59,24 +59,13 @@ router.post('/', async (req, res) => {
             FA_Token: FA_Token
         });
     } else {
-        let IP;
         const source = req.headers['user-agent']
         const UserAgent = useragent.parse(source)
-        if (process.env.CloudFlare_Proxy === 'true' || process.env.CloudFlare_Proxy == true) {
-            IP = req.headers['cf-connecting-ip'] || req.ip //This only works with cloudflare proxy
-        } else {
-            IP = req.headers['x-forwarded-for'] || req.ip //This only works without cloudflare
-        }
 
         const WebToken = randomstring.generate({
             length: process.env.WebTokenLength, //DO NOT CHANCE!!!
             charset: 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!'
         });
-
-        let IPHash = IP
-        if (process.env.HashIPSalts != 0) {
-            IPHash = await bcrypt.hash(IP, parseInt(process.env.HashIPSalts, 10)); // Hashing the IP still allows us to check if the IP has changed, but its more GDPR (Privacy) friendly
-        }
 
         const PermissionsResponse = await user.permission.get(user_response[0].username)
 
@@ -84,9 +73,9 @@ router.post('/', async (req, res) => {
         const allowed = checkPermission(Formated_Permissions, 'app.web.login'); // Check if user has permissions to login
         if (!allowed.result) throw new PermissionsError('NoPermissions', 'app.web.login');
 
-        const WebTokenResponse = await webtoken.create(user_response[0].username, WebToken, IPHash, UserAgent.browser, user_response[0].language);
+        const WebTokenResponse = await webtoken.create(user_response[0].username, WebToken, UserAgent.browser, user_response[0].language);
         if (WebTokenResponse.rowCount === 0) throw new DBError('Webtoken.Create', 0, typeof 0, WebTokenResponse.rowCount, typeof WebTokenResponse.rowCount);
-        await addWebtoken(WebToken, user_response[0].username, user_response[0].language, Formated_Permissions, IPHash, UserAgent.browser, new Date().getTime()); // Add the webtoken to the cache
+        await addWebtoken(WebToken, user_response[0].username, user_response[0].language, Formated_Permissions, UserAgent.browser, new Date().getTime()); // Add the webtoken to the cache
 
         res.status(200)
         res.json({
@@ -120,24 +109,13 @@ router.post('/2fa', async (req, res) => {
     const twofa_time_response = await user.update.twofa_time(value.username, null);
     if (twofa_time_response.rowCount === 1) throw new DBError('Webtoken.Create', 1, typeof 1, twofa_time_response.rowCount, typeof twofa_time_response.rowCount);
 
-    let IP;
     const source = req.headers['user-agent']
     const UserAgent = useragent.parse(source)
-    if (process.env.CloudFlare_Proxy === 'true' || process.env.CloudFlare_Proxy == true) {
-        IP = req.headers['cf-connecting-ip'] || req.ip //This only works with cloudflare proxy
-    } else {
-        IP = req.headers['x-forwarded-for'] || req.ip //This only works without cloudflare
-    }
 
     const WebToken = randomstring.generate({
         length: process.env.WebTokenLength, //DO NOT CHANCE!!!
         charset: 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!'
     });
-
-    let IPHash = IP;
-    if (process.env.HashIPSalts != 0) {
-        IPHash = await bcrypt.hash(IP, parseInt(process.env.HashIPSalts, 10)); // Hashing the IP still allows us to check if the IP has changed, but its more GDPR (Privacy) friendly
-    }
 
     const PermissionsResponse = await user.permission.get(user_response[0].username)
 
@@ -145,9 +123,9 @@ router.post('/2fa', async (req, res) => {
     const allowed = checkPermission(Formated_Permissions, 'app.web.login'); // Check if user has permissions to login
     if (!allowed.result) throw new PermissionsError('NoPermissions', 'app.web.login');
 
-    const WebTokenResponse = await webtoken.create(user_response[0].username, WebToken, IPHash, UserAgent.browser, user_response[0].language);
+    const WebTokenResponse = await webtoken.create(user_response[0].username, WebToken, UserAgent.browser, user_response[0].language);
     if (WebTokenResponse.rowCount === 0) throw new DBError('Webtoken.Create', 0, typeof 0, twofa_time_response.rowCount, typeof twofa_time_response.rowCount);
-    await addWebtoken(WebToken, user_response[0].username, IPHash, UserAgent.browser); // Add the webtoken to the cache
+    await addWebtoken(WebToken, user_response[0].username, UserAgent.browser); // Add the webtoken to the cache
 
     res.status(200)
     res.json({
@@ -159,7 +137,17 @@ router.post('/2fa', async (req, res) => {
     });
 });
 
-router.post('/logout', verifyRequest('app.web.logout'), async (req, res) => {
+router.post('/check', verifyRequest('app.web.login'), async (req, res) => {
+    res.status(200)
+    res.json({
+        message: 'Login successful',
+        username: req.user.username,
+        language: req.user.language,
+        permissions: req.user.permissions
+    });
+});     
+
+router.post('/logout', verifyRequest('app.web.login'), async (req, res) => {
     const WebTokenResponse = await webtoken.delete(req.authorization); // Delete the webtoken from the database
     if (WebTokenResponse.rowCount === 0) new DBError('Webtoken.Create', 0, typeof 0, WebTokenResponse.rowCount, typeof WebTokenResponse.rowCount);
     delWebtoken(req.authorization); // Remove the webtoken from the cache

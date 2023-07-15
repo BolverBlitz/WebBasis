@@ -2,7 +2,7 @@ const HyperExpress = require('hyper-express');
 const fs = require('fs');
 const path = require('path');
 const app = new HyperExpress.Server({
-    fast_buffers: process.env.HE_fast_buffers || false,
+    fast_buffers: process.env.HE_fast_buffers == 'false' ? false : true || false,
 });
 
 const { log_errors } = require('@config/errors')
@@ -25,6 +25,11 @@ app.get('/login2fa', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'www-public', 'login', '2fa.html'));
 });
 
+app.get('/audio', (req, res) => {
+    res.header('Content-Type', 'text/html');
+    res.sendFile(path.join(__dirname, '..', 'www-public', 'audio.html'));
+});
+
 app.get('/assets/*', (req, res) => {
     if (req.url.endsWith('.js')) { res.header('Content-Type', 'text/javascript'); } else { res.header('Content-Type', 'text/css'); }
     res.send(fs.readFileSync(path.join(__dirname, '..', 'www-public', req.url)));
@@ -34,6 +39,7 @@ app.use('/api/v1', apiv1);
 
 /* Handlers */
 app.set_error_handler((req, res, error) => {
+    console.log(error)
     process.log.debug(error);
     const outError = {
         message: error.message || "",
@@ -75,5 +81,10 @@ app.set_error_handler((req, res, error) => {
         reason: outError.reason,
     });
 });
+
+setTimeout(() => {
+    //console.log(app.routes)
+    //console.log(app.routes.get['/api/v1/audio/devices'].options)
+}, 1000);
 
 module.exports = app;

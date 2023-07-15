@@ -1,15 +1,68 @@
-<!DOCTYPE html>
-<meta charset="utf-8" />
-<head>
-	<title id="Title">Index</title>
-	<script src="./assets/js/jquery.min.js"></script>
-</head>
+<!DOCTYPE HTML>
+<!--
+	Hyperspace by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title id="SideTile"></title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
 
-<body>
+		<!-- Header -->
+			<header id="header">
+				<a href="index.html" id="HeaderWelcome" class="title"></a>
+				<nav>
+					<ul id="LinksList">
+					</ul>
+				</nav>
+			</header>
 
-</body>
+		<!-- Wrapper -->
+			<div id="wrapper">
+			<!-- Main -->
+				<section id="main" class="wrapper">
+					<div class="inner">
+						<h1 class="major" id="MainHeadline"></h1>
+						<h3 id="StromText"></h3>
+						<canvas id="StromChart" style="display: block; box-sizing: border-box; height: 100px; width: 800px;" width="1200" height="250"></canvas>
+					</div>
+				</section>
+			</div>
 
-<script>
-	const getUrl = window.location;
-    const baseUrl = getUrl.protocol + "//" + getUrl.host + "/";
-</script>
+		<!-- Footer -->
+			<footer id="footer" class="wrapper alt">
+				<div class="inner">
+					<ul class="menu">
+						<li>&copy; ProjectIzzy by BolverBLitz | All rights reserved.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li><li>Projekt und Dokumentation: <a href="https://github.com/EBG-PW/LAN-Abrechnung">Github</a></li><li>
+							<select id="countries" onchange='chanceLanguageEvent()' style="width:280px;">
+								<option value='de'>🇩🇪 German</option>
+								<option value='en'>🇬🇧 English</option>
+								<option value='it'>🇮🇹 Italian</option>
+								<option value='ua'>🇺🇦 Ukranian</option>
+							</select>
+						</li>
+					</ul>
+				</div>
+			</footer>
+
+		<!-- Scripts -->
+			<script>const exports = {};//Fixes i18n Stuff lol.</script>
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/security.js"></script>
+			<script src="assets/js/i18n.source.js"></script>
+			<script src="assets/js/i18n.js"></script>
+			<script src="assets/js/BuildHTML.js"></script>
+			<script>
+				checkTokenValidity();
+				createHeaderMessage();
+				createSiteTitle();
+				createHeaderLinks('Index');
+			</script>
+	</body>
+</html>

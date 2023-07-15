@@ -1,5 +1,5 @@
+<!DOCTYPE html>
 <meta charset="utf-8" />
-
 <head>
   <script src="assets/js/jquery.min.js"></script>
   <style>
@@ -381,7 +381,7 @@
       console.log(JSON.stringify(result.permission))
       localStorage.setItem('token', result.token);
       localStorage.setItem('username', result.username);
-      localStorage.setItem('permssions', JSON.stringify(result.permission));
+      localStorage.setItem('permssions', JSON.stringify(result.permissions));
       window.location.replace(`${baseUrl}`); //Starting Page after Login
       $("#c-welcome-info").html(`Login succsess...`);
     })
