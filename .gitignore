@@ -125,3 +125,12 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Application specific files
+
+# Playwright
+test-results/*
+
+# Containing passwords / secrets / tokens for testing purposes
+e2e-test/config.json
+.auth/*
