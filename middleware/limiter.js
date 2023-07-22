@@ -12,9 +12,16 @@ const limiter = (cost = 1) => {
             let key;
             if (!req.authorization) {
                 if (process.env.CloudFlare_Proxy === 'true' || process.env.CloudFlare_Proxy == true) {
+                    if(req.headers['x-forwarded-for']) process.log.warn('Requests are comming from a normal proxy but cloudflare proxy is set in the env file')
+                    if(!req.headers['cf-connecting-ip']) process.log.warn('Cloudflare proxy is set in the env file but requests are not comming from a cloudflare proxy')
                     key = req.headers['cf-connecting-ip'] || req.ip //This only works with cloudflare proxy
-                } else {
+                } else if (process.env.Any_Proxy === 'true' || process.env.Any_Proxy == true) {
+                    if(req.headers['cf-connecting-ip']) process.log.warn('Requests are comming from a cloudflare but normal proxy is set in the env file')
+                    if(!req.headers['x-forwarded-for']) process.log.warn('Normal proxy is set in the env file but requests are not comming from a normal proxy')
                     key = req.headers['x-forwarded-for'] || req.ip //This only works without cloudflare
+                } else {
+                    if(req.headers['x-forwarded-for'] || req.headers['cf-connecting-ip']) process.log.warn('Requests are comming from a proxy but no proxy is set in the env file')
+                    key = req.ip //This only works without any proxy
                 }
             } else {
                 key = req.authorization;
@@ -22,7 +29,7 @@ const limiter = (cost = 1) => {
 
             const rateLimit = await LimiterMiddleware(key, cost);
 
-            if(rateLimit.result) throw new TooManyRequests('Too Many Requests', rateLimit.retryIn)
+            if (rateLimit.result) throw new TooManyRequests('Too Many Requests', rateLimit.retryIn)
 
         } catch (error) {
             return error; // This will trigger global error handler as we are returning an Error
