@@ -207,28 +207,28 @@ const RedisMulti = () => {
     if (Benches.localSingle) {
         console.log("Starting local benchmark, single Transaction");
         await LocalSingle();
-        console.log(`LocalCache: ${await local.CleanCache()}`);
+        console.log(`LocalCache: ${await local.WipeCache()}`);
         console.log("\n\n")
     }
 
     if (Benches.localMulti) {
         console.log("Starting local benchmark, multi Transaction");
         await LocalMulti();
-        console.log(`LocalCache: ${await local.CleanCache()}`);
+        console.log(`LocalCache: ${await local.WipeCache()}`);
         console.log("\n\n")
     }
 
     if (Benches.redisSingle) {
         console.log("Starting Redis benchmark, single Transaction");
         await RedisSingle();
-        console.log(`RedisCache: ${await redis.CleanCache()}`);
+        console.log(`RedisCache: ${await redis.WipeCache()}`);
         console.log("\n\n")
     }
 
     if (Benches.redisMulti) {
         console.log("Starting Redis benchmark, multi Transaction");
         await RedisMulti();
-        console.log(`RedisCache: ${await redis.CleanCache()}`);
+        console.log(`RedisCache: ${await redis.WipeCache()}`);
         console.log("\n\n")
     }
     process.exit(0);
